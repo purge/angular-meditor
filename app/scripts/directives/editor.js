@@ -109,7 +109,11 @@ angular.module('angular-meditor', [])
         'strong': '',
         'i': '',
         'em': '',
-        'u': ''
+        'u': '',
+        'h1': '',
+        'h2': '',
+        'ul': '',
+        'li': '',
       };
 
       // Remy Sharp's debounce
@@ -221,6 +225,13 @@ angular.module('angular-meditor', [])
       // check current selection styles and activate buttons
       var checkActiveButtons = function (selection) {
         var parentNode = selection.anchorNode;
+        //traverse node parents until we are at editor
+        scope.parentTags = {};
+        var p = parentNode;
+        do {
+          scope.parentTags[p.nodeName] = true;
+          p = p.parentElement;
+        } while(p.nodeName !== 'DIV');
 
         if (!parentNode.tagName) {
           parentNode = selection.anchorNode.parentNode;
@@ -269,7 +280,42 @@ angular.module('angular-meditor', [])
       // so I have to add a blur event to the selects.
       $selects.bind('blur', debounce(checkSelection, 200));
 
-      // simple edit action - bold, italic, underline
+      scope.ListAction = function() {
+        var parentTags = getSelectedParentNodes();
+        document.execCommand('insertUnorderedList', false);
+      };
+      scope.LinkAction = function() {
+        var parentTags = getSelectedParentNodes();
+        //TODO: check child nodenames too
+        //var childTags = getSelectedChildNodes();
+        var A = parentTags.A;
+        if(A) {
+          //remove link
+          var t = document.createTextNode(A.innerText);
+          A.parentNode.appendChild(t);
+          A.parentNode.removeChild(A);
+        } else {
+          var url = window.prompt('Where do you want to link to', 'http://')
+          document.execCommand('createLink', false, url);
+        }
+
+      };
+
+      scope.BlockAction = function(action) {
+        var parentTags = getSelectedParentNodes();
+        var target = parentTags[action];
+        if(target) {
+          //use a generic wrapper to wrap block since its difficult to remove
+          document.execCommand('formatBlock', false, "BLOCKQUOTE");
+        } else {
+          //TODO: IE needs tag wrapping <H1>
+          document.execCommand('formatBlock', false, action);
+        }
+
+        // custom event for two-way binding
+        scope.$broadcast('meditor-change');
+      };
+
       scope.SimpleAction = function(action) {
         document.execCommand('styleWithCSS', false, false);
         document.execCommand(action, false, null);
@@ -368,3 +414,18 @@ angular.module('angular-meditor', [])
     }
   };
 }]);
+
+function getSelectedParentNodes() {
+  var selection = window.getSelection();
+  var parentNode = selection.anchorNode;
+  var parentTags = {};
+  var p = parentNode;
+
+  do {
+    parentTags[p.nodeName] = p;
+    p = p.parentElement;
+  } while(p.nodeName !== 'DIV');
+
+  return parentTags;
+}
+

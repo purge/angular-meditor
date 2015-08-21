@@ -1,6 +1,31 @@
 <div class="angular-meditor">
   <div class="angular-meditor-toolbar" style="top: {{ position.top }}px; left: {{ position.left }}px" ng-class="{ 'angular-meditor-toolbar--show': model.showToolbar, 'angular-meditor-toolbar--bottom': position.below }">
     <ul>
+
+      <li>
+        <button type="button" ng-click="BlockAction('H1')" class="meditor-button-h1"
+          ng-class="{ 'meditor-button--active': parentTags.H1 }">H1
+        </button>
+      </li>
+
+      <li>
+        <button type="button" ng-click="BlockAction('H2')" class="meditor-button-h2"
+          ng-class="{ 'meditor-button--active': parentTags.H2 }">H2
+        </button>
+      </li>
+
+      <li>
+        <button type="button" ng-click="LinkAction()" class="meditor-button-link"
+          ng-class="{ 'meditor-button--active': parentTags.A }">Link
+        </button>
+      </li>
+
+      <li>
+        <button type="button" ng-click="ListAction()" class="meditor-button-list"
+          ng-class="{ 'meditor-button--active': parentTags.UL }">List
+        </button>
+      </li>
+
       <li>
         <button type="button" ng-click="SimpleAction('bold')" class="meditor-button-bold" ng-class="{ 'bold': 'meditor-button--active' }[styles.fontWeight]">
           B
