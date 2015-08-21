@@ -1,6 +1,21 @@
 /* angular-meditor directive
  */
 
+function getSelectedParentNodes() {
+  'use strict';
+  var selection = window.getSelection();
+  var parentNode = selection.anchorNode;
+  var parentTags = {};
+  var p = parentNode;
+
+  do {
+    parentTags[p.nodeName] = p;
+    p = p.parentElement;
+  } while(p.nodeName !== 'DIV');
+
+  return parentTags;
+}
+
 angular.module('angular-meditor', [])
 .directive('meditor', [ '$timeout', function ($timeout) {
   'use strict';
@@ -295,7 +310,7 @@ angular.module('angular-meditor', [])
           A.parentNode.appendChild(t);
           A.parentNode.removeChild(A);
         } else {
-          var url = window.prompt('Where do you want to link to', 'http://')
+          var url = window.prompt('Where do you want to link to', 'http://');
           document.execCommand('createLink', false, url);
         }
 
@@ -306,7 +321,7 @@ angular.module('angular-meditor', [])
         var target = parentTags[action];
         if(target) {
           //use a generic wrapper to wrap block since its difficult to remove
-          document.execCommand('formatBlock', false, "BLOCKQUOTE");
+          document.execCommand('formatBlock', false, 'BLOCKQUOTE');
         } else {
           //TODO: IE needs tag wrapping <H1>
           document.execCommand('formatBlock', false, action);
@@ -414,18 +429,4 @@ angular.module('angular-meditor', [])
     }
   };
 }]);
-
-function getSelectedParentNodes() {
-  var selection = window.getSelection();
-  var parentNode = selection.anchorNode;
-  var parentTags = {};
-  var p = parentNode;
-
-  do {
-    parentTags[p.nodeName] = p;
-    p = p.parentElement;
-  } while(p.nodeName !== 'DIV');
-
-  return parentTags;
-}
 
